@@ -7,6 +7,9 @@ from keras.applications.resnet50 import ResNet50, preprocess_input, decode_predi
 from keras.preprocessing import image
 import numpy as np
 
+from config import *
+
+
 # Load the ResNet50 model
 model = ResNet50(weights='imagenet')
 
@@ -41,7 +44,7 @@ def classify_image(image_url, model):
         # Check for specific categories
         categories = {
             "laptop": ["laptop", "notebook"],
-            "desktop": ["desktop", "monitor", "computer"],
+            "desktop": ["desktop"],
             "printer": ["printer"],
         }
 
@@ -195,24 +198,18 @@ def process_xml_files_from_folder(folder_path):
     df['note'] = ''
     df.loc[duplicates, 'note'] = 'duplicate'
 
-    # Prepare the output files
-    output_folder_path = 'output/'
-    os.makedirs(output_folder_path, exist_ok=True)
-    excel_file_name = "output.xlsx"
-    html_file_name = "output.html"
-
     # Save the DataFrame to an Excel file
-    excel_path = os.path.join(output_folder_path, excel_file_name)
+    excel_path = os.path.join(OUTPUT_PATH, EXCEL_FILE_NAME)
     with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False)
 
     # Save the HTML content to a file
-    html_path = os.path.join(output_folder_path, html_file_name)
+    html_path = os.path.join(OUTPUT_PATH, HTML_FILE_NAME)
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
     print(f"Processed {len(all_image_data)} images. Output saved to '{excel_path}' and '{html_path}'.")
 
 # Specify the path to your XML folder here
-xml_folder_path = 'xml/'
-process_xml_files_from_folder(xml_folder_path)
+XML_PATH = 'xml/'
+process_xml_files_from_folder(XML_PATH)
