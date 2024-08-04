@@ -1,65 +1,11 @@
 import os
-import pandas as pd
 import xml.etree.ElementTree as ET
-import requests
-from PIL import Image
-from keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
-from keras.preprocessing import image
-import numpy as np
+import pandas as pd
+from app.core.image_processing import classify_image
+from app.core.validation import validate_url
+from config import HTML_TEMPLATE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
 
-from config import *
-
-
-# Load the ResNet50 model
-model = ResNet50(weights='imagenet')
-
-def validate_url(url):
-    try:
-        response = requests.head(url, timeout=5)
-        if response.status_code == 200:
-            return "Valid"
-        else:
-            return "Invalid"
-    except requests.RequestException:
-        return "Invalid"
-
-def classify_image(image_url, model):
-    try:
-        # Download the image
-        response = requests.get(image_url, stream=True)
-        response.raise_for_status()
-
-        # Open the image and resize it
-        img = Image.open(response.raw).convert('RGB').resize((224, 224))
-
-        # Convert the image to a numpy array and preprocess it
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = preprocess_input(img_array)
-
-        # Make predictions using the model
-        preds = model.predict(img_array)
-        decoded_preds = decode_predictions(preds, top=3)[0]
-
-        # Check for specific categories
-        categories = {
-            "laptop": ["laptop", "notebook"],
-            "desktop": ["desktop"],
-            "printer": ["printer"],
-        }
-
-        for _, name, _ in decoded_preds:
-            for category, keywords in categories.items():
-                if any(keyword in name.lower() for keyword in keywords):
-                    return category.capitalize()
-
-        return "Other"
-
-    except Exception as e:
-        print(f"Error classifying image {image_url}: {e}")
-        return "Error"
-
-def process_xml_files_from_folder(folder_path):
+def process_xml_files_from_folder(folder_path, model):
     all_image_data = []
 
     for filename in os.listdir(folder_path):
@@ -150,7 +96,7 @@ def process_xml_files_from_folder(folder_path):
     image_data = sorted(all_image_data, key=lambda x: x["document_type_detail"])
 
     # Read the template file
-    with open('template/template.html', 'r') as file:
+    with open(HTML_TEMPLATE, 'r') as file:
         html_template = file.read()
 
     # Generate HTML table rows
@@ -209,7 +155,3 @@ def process_xml_files_from_folder(folder_path):
         f.write(html_content)
     
     print(f"Processed {len(all_image_data)} images. Output saved to '{excel_path}' and '{html_path}'.")
-
-# Specify the path to your XML folder here
-XML_PATH = 'xml/'
-process_xml_files_from_folder(XML_PATH)

@@ -1,0 +1,45 @@
+<html>
+<head>
+<style>
+    table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .divider {
+        border: none;
+        border-top: 2px solid rgb(0, 150, 214);
+        margin: 20px auto;
+        width: 50%;
+    }
+</style>
+</head>
+<body>
+<table>
+<tr>
+    <th>Prodnum</th>
+    <th>URL</th>
+    <th>URL Validity</th>
+    <th>Orientation</th>
+    <th>Master Object Name</th>
+    <th>Pixel Height</th>
+    <th>Pixel Width</th>
+    <th>Content Type</th>
+    <th>Document Type Detail</th>
+    <th>CMG Acronym</th>
+    <th>Color</th>
+    <th>Image Type</th>
+    <th>Image</th>
+</tr>
+{{ table_rows }}
+</table>
+</body>
+</html>
