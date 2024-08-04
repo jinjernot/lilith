@@ -5,7 +5,7 @@ from app.core.image_processing import classify_image
 from app.core.validation import validate_url
 from config import HTML_TEMPLATE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
 
-def process_xml_files_from_folder(folder_path, model):
+def process_data(folder_path, model):
     all_image_data = []
 
     for filename in os.listdir(folder_path):
