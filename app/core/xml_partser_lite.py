@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import pandas as pd
-from config import HTML_TEMPLATE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
+from config import HTML_TEMPLATE_LITE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
 
 def process_data(folder_path):
     all_image_data = []
@@ -84,7 +84,7 @@ def process_data(folder_path):
     image_data = sorted(all_image_data, key=lambda x: x["document_type_detail"])
 
     # Read the template file
-    with open(HTML_TEMPLATE, 'r') as file:
+    with open(HTML_TEMPLATE_LITE, 'r') as file:
         html_template = file.read()
 
     # Generate HTML table rows
