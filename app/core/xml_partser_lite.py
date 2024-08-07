@@ -80,19 +80,8 @@ def process_data(folder_path):
                             "color": color
                         })
 
-    # Create a DataFrame from the image data
-    df = pd.DataFrame(all_image_data)
-
-    # Identify and remove duplicate rows
-    df.drop_duplicates(
-        subset=["prodnum", "orientation", "pixel_height", "content_type", "cmg_acronym", "color"], 
-        keep='first', 
-        inplace=True
-    )
-
     # Sort image data by document type detail
-    image_data = df.to_dict(orient='records')
-    image_data = sorted(image_data, key=lambda x: x["document_type_detail"])
+    image_data = sorted(all_image_data, key=lambda x: x["document_type_detail"])
 
     # Read the template file
     with open(HTML_TEMPLATE_LITE, 'r') as file:
@@ -131,6 +120,16 @@ def process_data(folder_path):
     # Replace placeholder with the generated rows
     html_content = html_template.replace('{{ table_rows }}', table_rows)
 
+    # Create a DataFrame from the image data
+    df = pd.DataFrame(all_image_data)
+
+    # Identify duplicate rows
+    duplicates = df.duplicated(subset=["prodnum", "orientation", "pixel_height", "content_type", "cmg_acronym", "color"], keep=False)
+
+    # Add a new column "note" and set it to "duplicate" for duplicate rows
+    df['note'] = ''
+    df.loc[duplicates, 'note'] = 'duplicate'
+
     # Save the DataFrame to an Excel file
     excel_path = os.path.join(OUTPUT_PATH, EXCEL_FILE_NAME)
     with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
@@ -141,5 +140,4 @@ def process_data(folder_path):
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
-    print(f"Processed {len(df)} images. Output saved to '{excel_path}' and '{html_path}'.")
-
+    print(f"Processed {len(all_image_data)} images. Output saved to '{excel_path}' and '{html_path}'.")
