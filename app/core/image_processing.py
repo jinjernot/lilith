@@ -1,37 +1,31 @@
 import numpy as np
 import requests
 from PIL import Image
-from keras.applications.resnet50 import preprocess_input, decode_predictions
-from keras.preprocessing import image
+import tensorflow as tf
 
-def get_image_category(decoded_preds):
+def get_image_category(predictions, class_labels):
     """
     Determine the category of an image based on its predictions.
-    
+
     Args:
-    - decoded_preds (list): A list of tuples containing prediction information.
+    - predictions (numpy array): Model prediction probabilities.
+    - class_labels (list): List of class labels in the same order as the model's output.
 
     Returns:
     - str: The category of the image.
     """
-    # Define specific categories and keywords
-    categories = {
-        "laptop": ["laptop", "notebook"],
-        "desktop": ["desktop"],
-        "printer": ["printer"],
-    }
+    # Check if predictions have valid shape
+    if predictions.ndim != 2 or predictions.shape[0] != 1:
+        raise ValueError("Predictions should have shape (1, num_classes)")
 
-    # Iterate over decoded predictions
-    for _, name, _ in decoded_preds:
-        # Check each category against prediction keywords
-        for category, keywords in categories.items():
-            if any(keyword in name.lower() for keyword in keywords):
-                return category.capitalize()
+    # Get the predicted class index
+    predicted_class_index = np.argmax(predictions)
+    predicted_class = class_labels[predicted_class_index]
 
-    # Return "Other" if no category is matched
-    return "Other"
+    # Return the predicted class
+    return predicted_class
 
-def classify_image(image_url, model):
+def classify_image(image_url, model, class_labels):
     try:
         # Download the image
         response = requests.get(image_url, stream=True)
@@ -41,16 +35,18 @@ def classify_image(image_url, model):
         img = Image.open(response.raw).convert('RGB').resize((224, 224))
 
         # Convert the image to a numpy array and preprocess it
-        img_array = image.img_to_array(img)
+        img_array = np.array(img)
         img_array = np.expand_dims(img_array, axis=0)
-        img_array = preprocess_input(img_array)
+        img_array = tf.keras.applications.resnet50.preprocess_input(img_array)
 
         # Make predictions using the model
         preds = model.predict(img_array)
-        decoded_preds = decode_predictions(preds, top=3)[0]
+
+        # Print raw predictions for debugging
+        print("Raw predictions:", preds)
 
         # Get the image category
-        image_type = get_image_category(decoded_preds)
+        image_type = get_image_category(preds, class_labels)
 
         return image_type
 

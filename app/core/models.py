@@ -1,4 +1,5 @@
-from keras.applications.resnet50 import ResNet50
+import tensorflow as tf
 
-# Load the ResNet50 model
-model = ResNet50(weights='imagenet')
+model = tf.keras.models.load_model('models/fine_tuned_resnet50.keras')
+
+class_labels = ['ink cartridge']  

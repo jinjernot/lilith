@@ -1,11 +1,11 @@
 import os
 import xml.etree.ElementTree as ET
 import pandas as pd
-from app.core.image_processing import classify_image
-from app.core.validation import validate_url
+from image_processing import classify_image
+#from app.core.validation import validate_url
 from config import HTML_TEMPLATE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
 
-def process_data(folder_path, model):
+def process_data(folder_path, model, class_labels):
     all_image_data = []
 
     for filename in os.listdir(folder_path):
@@ -56,10 +56,10 @@ def process_data(folder_path, model):
                         color = color_element.text.strip() if color_element is not None else ""
 
                         # Validate URL
-                        url_validity = validate_url(image_url)
+                        # url_validity = validate_url(image_url)
 
                         # Validate the image type using computer vision
-                        image_type = classify_image(image_url, model)
+                        image_type = classify_image(image_url, model, class_labels)
 
                         image_data.append({
                             "prodnum": prodnum,
@@ -72,7 +72,7 @@ def process_data(folder_path, model):
                             "document_type_detail": document_type_detail,
                             "cmg_acronym": cmg_acronym,
                             "color": color,
-                            "url_validity": url_validity,
+                            # "url_validity": url_validity,
                             "image_type": image_type
                         })
 
@@ -88,7 +88,7 @@ def process_data(folder_path, model):
                             "document_type_detail": document_type_detail,
                             "cmg_acronym": cmg_acronym,
                             "color": color,
-                            "url_validity": url_validity,
+                            # "url_validity": url_validity,
                             "image_type": image_type
                         })
 
@@ -115,7 +115,6 @@ def process_data(folder_path, model):
         <tr>
             <td>{data['prodnum']}</td>
             <td>{data['url']}</td>
-            <td>{data['url_validity']}</td>
             <td>{data['orientation']}</td>
             <td>{data['master_object_name']}</td>
             <td>{data['pixel_height']}</td>

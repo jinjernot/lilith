@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import pandas as pd
-from config import HTML_TEMPLATE_LITE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
+from app.core.config import HTML_TEMPLATE_LITE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
 
 def process_data(folder_path):
     all_image_data = []
