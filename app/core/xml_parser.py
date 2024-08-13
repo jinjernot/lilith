@@ -3,7 +3,8 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 from image_processing import classify_image
 #from app.core.validation import validate_url
-from config import HTML_TEMPLATE, OUTPUT_PATH, EXCEL_FILE_NAME, HTML_FILE_NAME
+from app.config.paths import OUTPUT_PATH
+from app.config.variables import HTML_TEMPLATE, EXCEL_FILE_NAME, HTML_FILE_NAME
 
 def process_data(folder_path, model, class_labels):
     all_image_data = []
