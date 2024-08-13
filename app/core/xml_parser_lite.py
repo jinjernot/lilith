@@ -1,12 +1,13 @@
 import os
 import xml.etree.ElementTree as ET
 import pandas as pd
-from app.config.paths import OUTPUT_PATH
-from app.config.variables import HTML_TEMPLATE_LITE, EXCEL_FILE_NAME, HTML_FILE_NAME
+from app.config.paths import OUTPUT_PATH, HTML_TEMPLATE_LITE_PATH
+from app.config.variables import EXCEL_FILE_NAME, HTML_FILE_NAME
+
 
 def process_data(folder_path):
     all_image_data = []
-
+    
     for filename in os.listdir(folder_path):
         if filename.lower().endswith('.xml'):
             xml_file_path = os.path.join(folder_path, filename)
@@ -85,7 +86,7 @@ def process_data(folder_path):
     image_data = sorted(all_image_data, key=lambda x: x["document_type_detail"])
 
     # Read the template file
-    with open(HTML_TEMPLATE_LITE, 'r') as file:
+    with open(HTML_TEMPLATE_LITE_PATH, 'r') as file:
         html_template = file.read()
 
     # Generate HTML table rows
@@ -142,3 +143,4 @@ def process_data(folder_path):
         f.write(html_content)
     
     print(f"Processed {len(all_image_data)} images. Output saved to '{excel_path}' and '{html_path}'.")
+

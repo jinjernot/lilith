@@ -1,4 +1,3 @@
-#from app.core.xml_parser_lite import process_data
 from xml_parser import process_data
 from models import model
 from app.config.paths import XML_PATH
