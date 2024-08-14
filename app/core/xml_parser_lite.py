@@ -5,20 +5,24 @@ import xml.etree.ElementTree as ET
 from app.config.paths import OUTPUT_PATH, HTML_TEMPLATE_LITE_PATH
 from app.config.variables import EXCEL_FILE_NAME, HTML_FILE_NAME
 
-
 def process_data(folder_path):
     all_image_data = []
     processed_values = set()  # Set to keep track of processed values
 
     for filename in os.listdir(folder_path):
         if filename.lower().endswith('.xml'):
-            # Skip the first 27 characters and get the remaining part of the filename
-            base_filename = filename[27:].split(".xml")[0]
+            # Check if filename starts with "pad_"
+            if filename.startswith("pad_"):
+                # Skip the first 27 characters and get the remaining part of the filename
+                base_filename = filename[27:].split(".xml")[0]
 
-            # Skip if this value has already been processed
-            if base_filename in processed_values:
-                print(f"Skipping '{filename}' as it has already been processed.")
-                continue
+                # Skip if this value has already been processed
+                if base_filename in processed_values:
+                    print(f"Skipping '{filename}' as it has already been processed.")
+                    continue
+
+                # Mark this value as processed
+                processed_values.add(base_filename)
 
             xml_file_path = os.path.join(folder_path, filename)
             try:
@@ -27,9 +31,6 @@ def process_data(folder_path):
             except ET.ParseError:
                 print(f"Error parsing the XML file '{filename}'. Skipping.")
                 continue
-
-            # Mark this value as processed
-            processed_values.add(base_filename)
 
             # Extract and process XML data as before
             prodnum_element = root.find(".//product_numbers/prodnum")
@@ -76,23 +77,18 @@ def process_data(folder_path):
 
     # Create a DataFrame from the image data
     df = pd.DataFrame(all_image_data)
-
-    # Identify duplicate rows based on the specified columns
+    
+    # Identify duplicate rows and add a note for them
     duplicates = df.duplicated(subset=["prodnum", "orientation", "pixel_height", "content_type", "cmg_acronym", "color"], keep=False)
-
-    # Add a new column "note" and set it to "duplicate" for duplicate rows
     df['note'] = ''
     df.loc[duplicates, 'note'] = 'duplicate'
 
-    # Convert DataFrame back to a list of dictionaries and sort by document type detail
     image_data = df.to_dict(orient="records")
     image_data = sorted(image_data, key=lambda x: x["document_type_detail"])
 
-    # Read the HTML template file
     with open(HTML_TEMPLATE_LITE_PATH, 'r') as file:
         html_template = file.read()
 
-    # Generate HTML table rows
     previous_type = None
     table_rows = ""
     for data in image_data:
@@ -121,15 +117,12 @@ def process_data(folder_path):
 
         previous_type = data['prodnum']
 
-    # Replace placeholder with the generated rows
     html_content = html_template.replace('{{ table_rows }}', table_rows)
 
-    # Save the DataFrame to an Excel file
     excel_path = os.path.join(OUTPUT_PATH, EXCEL_FILE_NAME)
     with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False)
 
-    # Save the HTML content to a file
     html_path = os.path.join(OUTPUT_PATH, HTML_FILE_NAME)
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
