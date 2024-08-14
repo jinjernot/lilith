@@ -1,6 +1,7 @@
 import os
-import xml.etree.ElementTree as ET
 import pandas as pd
+import xml.etree.ElementTree as ET
+
 from app.config.paths import OUTPUT_PATH, HTML_TEMPLATE_LITE_PATH
 from app.config.variables import EXCEL_FILE_NAME, HTML_FILE_NAME
 
